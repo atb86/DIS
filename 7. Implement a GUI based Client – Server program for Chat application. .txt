@@ -1,0 +1,72 @@
+package chatserverclientby42;
+import java.net.*;
+import java.io.*;
+import java.lang.Runnable;
+public class ChatClientServer extends javax.swing.JFrame implements 
+Runnable{
+private void StartButtonActionPerformed(java.awt.event.ActionEvent 
+evt) { 
+ // TODO add your handling code here:
+ Thread t = new Thread(this, "Server");
+ t.start();
+ StartButton.setEnabled(false);
+ MessagePane.append("ServerListening\n");
+ 
+ } 
+ 
+@Override
+ public void run(){
+ String ip = ServerIPField.getText();
+ int port = Integer.parseInt(ServerPortField.getText());
+ try{
+ ServerSocket ss = new ServerSocket(port, 5, 
+InetAddress.getByName(ip));
+ while(true){
+ Socket s = ss.accept();
+ DataInputStream dis = new DataInputStream(s.getInputStream());
+ DataOutputStream dos = new 
+DataOutputStream(s.getOutputStream());
+ String receivedMessage = dis.readUTF();
+ 
+ MessagePane.append("Received: " +receivedMessage + "\n");
+ ServerResponseArea.append(s.getInetAddress()+": 
+"+receivedMessage+"\n");
+ 
+ s.close();
+ }
+ 
+ }catch(Exception e){
+ e.printStackTrace();
+ }
+ 
+ }
+ private void SendButtonActionPerformed(java.awt.event.ActionEvent evt) { 
+ // TODO add your handling code here:
+ String ip = ClientIPField.getText();
+ int port = Integer.parseInt(ClientPortField.getText());
+ 
+ 
+ try{
+ 
+ Socket s = new Socket(InetAddress.getByName(ip), port);
+ DataInputStream dis = new DataInputStream(s.getInputStream());
+ DataOutputStream dos = new 
+DataOutputStream(s.getOutputStream());
+ while(true){
+ String msg = MessageField.getText();
+ dos.writeUTF(msg);
+ String response = dis.readUTF();
+ ServerResponseArea.append("You: " + msg + "\n");
+ if(msg.equals("/Exit")){
+ s.close();
+break;
+ }
+ }
+ 
+ } catch(Exception e){
+ e.printStackTrace();
+ }
+ } 
+} 
+
+

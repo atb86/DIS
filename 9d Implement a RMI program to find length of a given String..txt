@@ -1,0 +1,83 @@
+Interface:
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+public interface LengthInterface extends Remote{
+int strLength(String s) throws RemoteException;
+}
+
+
+Implementation:
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+public class LengthImpl extends UnicastRemoteObject implements 
+LengthInterface{
+public LengthImpl() throws RemoteException{
+}
+public int strLength(String s1)
+{
+System.out.println("REMOTE SERVICE: Remote Client Request Message 
+is : "+s1);
+return s1.length();
+}
+}
+
+
+Server:
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.Naming;
+import java.net.MalformedURLException;
+import java.rmi.registry.LocateRegistry;
+public class LengthServer{
+public LengthServer() throws RemoteException{
+}
+public static void main(String args[]) throws RemoteException
+{
+LengthImpl lengthObj=new LengthImpl();
+int port=Integer.parseInt(args[1]);
+try{
+LocateRegistry.createRegistry(port);
+System.out.println("\n RMI registry created \n");
+String host=args[0];
+String bindLocation="//"+host+":"+port+"/"+args[2];
+Naming.bind(bindLocation,lengthObj);
+System.out.println("\nRMI server ready at "+bindLocation);
+}
+catch(Exception e)
+{
+e.printStackTrace();
+}
+}
+} 
+
+
+Client:
+import java.rmi.*;
+import java.io.*;
+import java.net.MalformedURLException;
+public class LengthClient {
+public static void main(String args[])
+{
+String 
+connectLocation="//"+args[0]+":"+Integer.parseInt(args[1])+"/"+args[2];
+LengthInterface lintf=null;
+try{
+System.out.println("\n Connecting the client at: 
+"+connectLocation);
+lintf=(LengthInterface)Naming.lookup(connectLocation);
+BufferedReader br=new BufferedReader(new 
+InputStreamReader(System.in));
+System.out.println("\nCLI: Enter the request message to send 
+to remote service:");
+String s=br.readLine();
+int response=lintf.strLength(s);
+System.out.println("\n CLI: response from remote method 
+is:"+response);
+}
+catch(Exception e)
+{
+e.printStackTrace();
+}
+}
+}

@@ -1,0 +1,64 @@
+import java.sql.*;
+public class NewJFrame extends javax.swing.JFrame {
+ Connection con;
+private void connectBtnActionPerformed(java.awt.event.ActionEvent evt) {
+ String user = jTextField1.getText();
+ String password = new String(jPasswordField1.getPassword());
+ try{
+ Class.forName("com.mysql.cj.jdbc.Driver");
+ con = DriverManager.getConnection("jdbc:mysql://10.2.4.6:3306/student", user, password);
+ jTextArea1.append("connection Established \n");
+ connectBtn.setEnabled(false);
+ disconnectBtn.setEnabled(true);
+ }
+ catch(Exception e){
+ e.printStackTrace();
+ }
+ }
+private void disconnectBtnActionPerformed(java.awt.event.ActionEvent evt) 
+ try{
+ con.close();
+ jTextArea1.append("\n Connection closed");
+ connectBtn.setEnabled(true);
+ disconnectBtn.setEnabled(false);
+ }
+ catch(Exception e){
+ e.printStackTrace();
+ }
+ }
+private void listTablesBtnActionPerformed(java.awt.event.ActionEvent evt) {
+ try{
+ Statement stmt = con.createStatement();
+ ResultSet rs = stmt.executeQuery("show tables");
+ jComboBox1.removeAllItems();
+ while(rs.next()){
+ jTextArea1.append(rs.getString(1)+"\n");
+ jComboBox1.addItem(rs.getString(1)+"\n");
+ }
+ }catch(Exception e){
+ e.printStackTrace();
+ }
+ }
+private void displayTableBtnActionPerformed(java.awt.event.ActionEvent evt) {
+ String str = (String)jComboBox1.getSelectedItem();
+ String fild = jTextField2.getText();
+ try{
+ Statement stmt = con.createStatement();
+ ResultSet rs = stmt.executeQuery("select "+fild+" from " + str);
+ jTextArea1.append("\n");
+ ResultSetMetaData rsmd = rs.getMetaData();
+ 
+ for(int i = 1; i <= rsmd.getColumnCount() ; i++)
+ jTextArea1.append(rsmd.getColumnName(i) + "\t");
+ jTextArea1.append("\n");
+ 
+ while(rs.next()){
+ for(int i = 1; i <= rsmd.getColumnCount() ; i++)
+ jTextArea1.append(rs.getString(i) + "\t");
+ jTextArea1.append("\n");
+ 
+ }
+ }catch(Exception e){
+ e.printStackTrace();
+ }
+ }

@@ -1,0 +1,67 @@
+Specification file
+struct strs{
+string str1<>;
+string str2<>;
+};
+program concat_prog{
+version concat_ver{
+string concat(strs)=1;
+}=1;
+}=0x20000201;
+
+
+Client
+#include "concat.h"
+void
+concat_prog_1(char *host)
+{
+CLIENT *clnt;
+char * *result_1;
+strs concat_1_arg;
+#ifndef DEBUG
+clnt = clnt_create (host, concat_prog, concat_ver, "udp");
+if (clnt == NULL) {
+clnt_pcreateerror (host);
+exit (1);
+}
+#endif /* DEBUG */
+concat_1_arg.str1=(char*)malloc(sizeof(char)*32);
+concat_1_arg.str2=(char*)malloc(sizeof(char)*32);
+printf("\nEnter two string to concatenate:");
+scanf("%s%s",concat_1_arg.str1,concat_1_arg.str2);
+*result_1=(char*)malloc(sizeof(char)*100);
+result_1 = concat_1(&concat_1_arg, clnt);
+if (result_1 == (char **) NULL) {
+clnt_perror (clnt, "call failed");
+}
+printf("\nresult=%s",*result_1);
+#ifndef DEBUG
+clnt_destroy (clnt);
+#endif /* DEBUG */
+}
+int
+main (int argc, char *argv[])
+{
+char *host;
+if (argc < 2) {
+printf ("usage: %s server_host\n", argv[0]);
+exit (1);
+}
+host = argv[1];
+concat_prog_1 (host);
+exit (0);
+}
+
+
+Server
+#include "concat.h"
+#include<string.h>
+char **
+concat_1_svc(strs *argp, struct svc_req *rqstp)
+{
+static char * result;
+result=(char*)malloc(sizeof(char)*100);
+strcpy(result,argp->str1);
+strcat(result,argp->str2);
+return &result;
+}

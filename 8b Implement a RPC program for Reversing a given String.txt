@@ -1,0 +1,65 @@
+Specification file
+program rev_prog{
+version rev_ver{
+string revstr(string)=1;
+}=1;
+}=0x20000022;
+
+
+Client
+#include rev.h
+void
+rev_prog_1(char host)
+{
+CLIENT clnt;
+char  result_1;
+char  revstr_1_arg;
+#ifndef DEBUG
+clnt = clnt_create (host, rev_prog, rev_ver, udp);
+if (clnt == NULL) {
+clnt_pcreateerror (host);
+exit (1);
+}
+#endif  DEBUG 
+revstr_1_arg=(char)malloc(sizeof(char)20);
+printf(nEnter a string);
+scanf(%s,revstr_1_arg);
+result_1=(char)malloc(sizeof(char)20);
+result_1 = revstr_1(&revstr_1_arg, clnt);
+if (result_1 == (char ) NULL) {
+clnt_perror (clnt, call failed);
+}
+printf(result=%s,result_1);
+#ifndef DEBUG
+clnt_destroy (clnt);
+#endif  DEBUG 
+}
+int
+main (int argc, char argv[])
+{
+char host;
+if (argc  2) {
+printf (usage %s server_hostn, argv[0]);
+exit (1);
+}
+host = argv[1];
+rev_prog_1 (host);
+exit (0);
+}
+
+
+Server
+#include rev.h
+#includestring.h
+#includestdlib.h
+char 
+revstr_1_svc(char argp, struct svc_req rqstp)
+{
+static char  result;
+int i,j;
+result=(char)malloc(sizeof(char)20);
+for(j=0,i=strlen(argp)-1;i=0;i--,j++)
+(result+j)=(argp+i);
+(result+j)='0';
+return &result;
+}

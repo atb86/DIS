@@ -1,0 +1,74 @@
+package ftpserverclientby42;
+import java.io.*;
+import javax.swing.JFileChooser;
+import org.apache.commons.net.ftp.*;
+import org.apache.commons.net.ftp.FTPClient;
+public class FTPClientInterface extends javax.swing.JFrame {
+private void listFilesButtonActionPerformed(java.awt.event.ActionEvent evt) 
+{ 
+ 
+ String ip = IPField.getText();
+ String username = usernameField.getText();
+ String password = new String(passwordField.getPassword());
+ 
+ try {
+ FTPClient ftpc = new FTPClient();
+ ftpc.connect(ip);
+ int status = ftpc.getReplyCode();
+ if(FTPReply.isPositiveCompletion(status)){
+ statusWindowArea.append("Connected to " + ip + "\n");
+ if(ftpc.login(username, password)){
+ statusWindowArea.append("User " +username+ " logged in 
+to " +ip+ "\n");
+ statusWindowArea.append("Current directory is 
+"+ftpc.printWorkingDirectory()+"\n");
+ FTPFile[] files = ftpc.listFiles();
+dropdownBox.removeAllItems();
+for(FTPFile file : files){
+ dropdownBox.addItem(file.getName());
+statusWindowArea.append(">" + file.getName()+ 
+"\n");
+ }
+ }
+ } else {
+ statusWindowArea.append("Invalid Credentials");
+ }
+ } catch(Exception e) {
+ e.printStackTrace();
+ }
+ }
+private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) 
+{ 
+ 
+ try {
+ String filename = 
+(String)dropdownBox.getSelectedItem();
+ System.out.println(filename);
+File fname = new File(filename);
+OutputStream os = new BufferedOutputStream(new 
+FileOutputStream(fname));
+ if(ftpc.retrieveFile(filename, os))
+{
+ statusWindowArea.append("Succesfully downloaded 
+\n");
+ }else{
+ statusWindowArea.append("Couldn't download\n");
+ }
+os.close();
+if(ftpc.logout()){
+ statusWindowArea.append("User " +username+ " logged 
+out. \n");
+ }
+ftpc.disconnect();
+ statusWindowArea.append("Disconnected from " +ip + 
+"\n");
+ }
+ } else {
+ statusWindowArea.append("Invalid Credentials");
+ }
+ } catch(Exception e) {
+ e.printStackTrace();
+ }
+ 
+ } 
+}
